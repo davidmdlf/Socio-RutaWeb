@@ -1,0 +1,34 @@
+/*
+Cascade style sheet of Socio-Ruta Web 
+*/
+/* 
+    Created on : 28-ene-2014, 14:39:30
+    Author     : David Miguel de la Fuente
+*/
+
+* {
+    margin: 0px;
+    padding: 0px;
+    font-family: verdana;
+    font-size: 1em;
+}
+html{
+    height: 100%;
+}
+
+body{
+    text-align: center;
+    vertical-align: central;
+    background: -webkit-linear-gradient(top, teal, steelblue);
+    box-sizing: border-box;
+    height: 100%;
+}
+
+input[type="submit"], input[type="button"] {
+    padding:3px;
+}
+
+p{
+    text-align: left;
+}
+

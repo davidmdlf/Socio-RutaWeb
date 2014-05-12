@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        <link type="text/css" rel="stylesheet" href="css/mainStyle.css" >
+        <link type="text/css" rel="stylesheet" href="css/scriptViewerStyle.css" >
+        <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+        <script type="text/javascript" src="script/util.js"></script>
+        <script type="text/javascript" src="script/errorHandlers.js"></script>
+        <script type="text/javascript" src="script/scriptViewer.js"></script>
+    </head>
+    <body>
+        <section id="multimedia_viewer_box">
+            <section id="multimedia_viewer">
+                <br>
+                <input onclick="hideMultimediaViewer()" type="submit" value="Cerrar">
+            </section>
+        </section>
+        <fieldset>
+            <legend id="node_type">Pregunta</legend>
+            <section id="questions_box"></section>
+            <section id="advices_strategies_box"></section>
+        </fieldset>
+        <section id="answers_section">
+            <nav id="answers_box"></nav>
+        </section>
+    </body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Socio-Ruta Web 1.0</title>
+        <meta charset="UTF-8">
+        <meta name="format-detection" content="telephone=yes" />
+        <meta name="viewport" content="user-scalable=no, width=device-width"/>
+        <link type="text/css" rel="stylesheet" href="css/mainStyle.css" >
+        <link type="text/css" rel="stylesheet" href="css/indexStyle.css" >
+        <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+        <script type="text/javascript" charset="utf-8" src="script/insertProfileData.js"></script>
+    </head>
+    <body>
+        <fieldset>
+            <legend>Introduce tus datos</legend>
+            <form id="personal_data">
+                <p>Nombre: <input id="username" name="username" type="text" form="personal_data" placeholder="Inserta tu nombre" ></p>
+                <p>Edad: <input id="age" name="age" type="number" form="personal_data" max="100" min="0" step="1" ></p>
+                <p>Sexo:
+                    <select id="sex" name="sex" form="personal_data">
+                        <option>Masculino</option>
+                        <option>Femenino</option>
+                    </select>
+                </p>
+                <p>Nivel de estudios: 
+                    <select id="studies" name="studies" form="personal_data">
+                        <option>Sin estudios</option>
+                        <option>Primaria</option>
+                        <option>Secundaria</option>
+                        <option>Bachillerato</option>
+                        <option>FP</option>
+                        <option>Universidad</option>
+                        <option>Trabajador</option>
+                    </select>
+                </p>
+                <input id="btn_next" type="button"  form="personal_data" value="Siguiente" disabled/>
+            </form>
+        </fieldset>
+    </body>
+</html>

@@ -1,0 +1,33 @@
+/*
+Cascade Style Sheet of the index.html page for the introduction
+of the profile user's data.
+*/
+/* 
+    Created on : 28-ene-2014, 15:38:27
+    Author     : David Miguel de la Fuente
+*/
+
+legend{
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #999999;
+    border-color: #2E2E2E;
+    border-style: solid;
+    border-radius: 5px;
+    padding:8px;
+}
+
+fieldset {
+    margin-top: 0.5rem;
+    alignment-adjust: auto;
+    background-color: #D8D8D8;
+    border-color: #2E2E2E;
+    border-style: solid;
+    border-radius: 0px 20px;
+    padding: 10px;
+}
+
+p{
+    margin:15px;
+}

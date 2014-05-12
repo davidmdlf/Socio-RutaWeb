@@ -1,0 +1,45 @@
+/*
+Cascade Style Sheet of the scripts list window.
+*/
+/* 
+    Created on : 03-feb-2014, 22:39:30
+    Author     : David Miguel de la Fuente
+*/
+
+nav{
+    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-radius: 0px 25px;;
+    border-color: #2E2E2E;
+    border-style: solid;
+}
+
+div{
+    text-align: left;
+    background-color: #D8D8D8;
+    border-bottom: 1px solid #2E2E2E;
+    cursor: pointer;
+    padding: 5px;
+
+}
+div:first-of-type{
+    border-top-right-radius: inherit;
+}
+div:last-of-type{
+    border-bottom-left-radius: inherit;
+}
+p{
+    font-size: 1em
+}
+
+footer {
+    font-size: 0.8em;
+    font-style: oblique;
+}
+
+img{
+    float: left;
+    margin-right: 5px;
+}
+

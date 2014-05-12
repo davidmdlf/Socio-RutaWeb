@@ -1,0 +1,147 @@
+/*
+Cascade Style Sheet of the script navigator.
+*/
+/* 
+    Created on : 11-feb-2014, 19:55:56
+    Author     : David Migel de la Fuente
+*/
+
+html, body{
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+section, nav, fieldset{
+    box-sizing: inherit;
+
+    -moz-box-sizing: inherit;
+}
+
+#questions_box > div > p,
+#advices_strategies_box > div > p {
+    text-align: center;
+}
+#questions_box > div > p:last-child,
+#advices_strategies_box > div > p:last-child {
+    padding: 1.5rem;  
+}
+
+#questions_box, #advices_strategies_box{
+    padding: 1rem;
+    max-height: 90%;
+    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+#questions_box img, #advices_strategies_box img{
+    width: 2.2rem;
+}
+
+#answers_box {
+    max-height: 100%;
+    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 3px solid #2E2E2E;
+    border-top-width: 0px;
+    border-bottom-right-radius: 0px;
+}
+#answers_section{
+    height: 50%;
+    padding-bottom: 2rem;
+}
+
+#answers_box > div {
+    background-color: #D8D8D8;
+    border-bottom: 1px solid;
+    padding: 10px;
+    cursor: pointer;
+    clear: both;
+    min-height: 1.5rem;
+    text-align: left;
+}
+#answers_box > div:last-child{
+    border-bottom: none;
+}
+.answer img {
+    width: 1.5rem;
+}
+.answer .multimedia_bar{
+    display:inline-block;
+    margin-left: 0.5rem;
+}
+.answer .answer_text_box {
+    display: inline;
+}
+.answer .multimedia_bar{
+    float:right;
+}
+#advices_strategies_box {
+    display: none;
+}
+
+.linked_icon {
+    cursor: pointer;
+}
+.no_linked_icon {
+    opacity: 0.1;
+}
+#multimedia_viewer_box {
+    position: absolute;
+    top: 0rem;
+    left: 0rem;
+    height: 100%;
+    width: 100%;
+    
+    margin: 0;
+    padding: 0.5rem;
+    
+    display: none;
+    
+    background-image: url(../images/background_visualizador.png);
+}
+#multimedia_viewer {
+    padding: 10px;
+
+    border: 0.2rem solid #2E2E2E;
+    background-color: #ffffff;
+    border-radius: 1.5rem;
+    text-align: center;
+
+    left: auto;
+
+    max-height: 90%;
+    max-width: 90%;
+
+    z-index: 0;
+    display: inline-block;
+}
+
+#multimedia_content {
+    margin-bottom: 10px;
+    max-height: 80%;
+    max-width: 80%;
+}
+
+fieldset{
+    margin-top: 1rem;
+    height: 50%;
+    padding-top: 0.5rem;
+    border: 3px solid #2E2E2E;
+    border-top-right-radius: 20px;
+    background-color: #ffffff;
+}
+
+legend{
+    font-size: 1em;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #999999;
+    border-color: #2E2E2E;
+    border-style: solid;
+    border-radius: 5px;
+    padding:4px;
+    margin-bottom: 10px;
+}
