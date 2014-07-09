@@ -14,8 +14,9 @@ Cascade style sheet of Socio-Ruta Web
 }
 html, body{
     height: 100%;
+    overflow: hidden;
 }
-button, li , a, *:hover, *:active
+button, li , a, *:hover
 {
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important; 
 }

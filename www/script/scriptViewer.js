@@ -171,7 +171,7 @@ function showNode(node) {
         element.appendChild(text_box);
         answers_box.appendChild(element);
     }
-    resize()
+    resize();
 }
 /*
  * Create a bar with icons to access the multimedia content from the script.
@@ -247,20 +247,19 @@ function createMultimediaElement(bar, multimedia, type) {
  */
 function compareDates(multimedia) {
     root_dir.getFile(script_info.name + "/" + multimedia, {create: false}, function(file_entry) {
-        file_entry.getMetadata(function(metadata) {
+        file_entry.file(function(file) {
             console.log("Metadata of " + multimedia + " obtained");
-            var local_date = metadata.modificationTime;
+            var local_date = new Date(file.lastModifiedDate);
             var petition = new XMLHttpRequest();
             petition.open("HEAD", script_info.dir_route + "/" + multimedia);
             petition.addEventListener('load', function() {
                 if (this.status == 200) {
                     console.log("Headers of " + multimedia + " obtained");
-                    var remote_date = Date.parse(this.getResponseHeader("Last-Modified"));
-                    console.log("Local file \"" + multimedia + "\" with date" + local_date.toString());
-                    console.log("Remote file " + multimedia + " with date " + remote_date.toString());
+                    var remote_date = new Date(this.getResponseHeader("Last-Modified"));
+                    console.log("Local file \"" + multimedia + "\" with date" + local_date);
+                    console.log("Remote file " + multimedia + " with date " + remote_date);
                     if (local_date < remote_date) {
-                        console.log("Newer remote version of " + multimedia + ", downloading")
-                        alert("down " + multimeda);
+                        console.log("Newer remote version of " + multimedia + ", downloading");
                         downloadMedia(multimedia);
                     } else {
                         console.log("Local version of " + multimedia + " already up to date");
