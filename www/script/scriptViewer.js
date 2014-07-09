@@ -7,12 +7,16 @@
 var nodes, initial_node, graph, script_info;
 var root_dir;
 var downloadErrOcurred = false;
+var pendingDownloads = 0, downloadsDone = 0;
 /*
  * Execute the routines to initialize the page.
  */
 function init() {
+    console.log("--------- Initializing ScriptViewer Page----------");
     script_info = JSON.parse(sessionStorage.script_info);
-    document.title = "Guion: " + script_info.name;
+    document.title = script_info.name;
+    if (document.getElementById("rotule"))
+        document.getElementById("rotule").innerHTML = script_info.name;
     try {
         window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fs) {
             fs.root.getDirectory(localStorage.path_root_dir, {create: false}, function(dir) {
@@ -21,6 +25,7 @@ function init() {
             }, fileError);
         }, fileError);
     } catch (err) {
+        console.log("Error getting FS");
         alert(err);
     }
 }
@@ -124,8 +129,6 @@ function showNode(node) {
         else {
             var advices_strategies_box = document.getElementById("advices_strategies_box");
             var node_type = document.getElementById("node_type");
-            var fieldset = document.getElementsByTagName("fieldset")[0];
-            fieldset.style.height = "100%";
             advices_strategies_box.style.display = "block";
             questions_box.style.display = "none";
             answers_box.style.display = "none";
@@ -133,20 +136,22 @@ function showNode(node) {
             removeAllChilds(advices_strategies_box);
             advices_strategies_box.appendChild(element);
             var button = document.createElement("input");
-            button.type = "submit";
+            button.type = "button";
             if (node.type === "tip") {
                 node_type.innerHTML = "Consejo";
                 button.value = "Seguir";
-                button.onclick = function() {
+                button.addEventListener('click', function() {
+                    navigator.notification.vibrate(100);
                     showNode(node.destinations[0]);
-                };
+                });
             }
             else {
                 node_type.innerHTML = "Estrategia";
                 button.value = "Aceptar";
-                button.onclick = function() {
+                button.addEventListener('click', function() {
+                    navigator.notification.vibrate(100);
                     history.back(1);
-                };
+                });
             }
             advices_strategies_box.appendChild(button);
         }
@@ -156,13 +161,17 @@ function showNode(node) {
         createMultimediaBar(element, node);
         var text_box = document.createElement("p");
         text_box.innerText = node.text;
+        text_box.innerHTML = node.text;
         text_box.className = "answer_text_box";
+//        text_box.style.width = window.innerWidth - (7*16) + "px";
         text_box.addEventListener('click', function() {
+            navigator.notification.vibrate(100);
             showNode(node.destinations[0]);
         });
         element.appendChild(text_box);
         answers_box.appendChild(element);
     }
+    resize()
 }
 /*
  * Create a bar with icons to access the multimedia content from the script.
@@ -206,33 +215,27 @@ function createMultimediaElement(bar, multimedia, type) {
     }
     if (multimedia !== "") {
         icon_elem.className = "linked_icon";
-        icon_elem.onclick = function() {
+        icon_elem.addEventListener('click', function() {
+            navigator.notification.vibrate(100);
             var viewer = document.getElementById("multimedia_viewer");
             var elem_mm = document.createElement(type);
             elem_mm.id = "multimedia_content";
-            if (type === "video" || type === "audio") {
-                elem_mm.autoplay = "true";
-                elem_mm.controls = "true";
-            }
             root_dir.getFile(script_info.name + "/" + multimedia, {create: false},
             function(file_entry) {
-                console.log("File \"" + multimedia + "\" encountered in local filesystem at " + file_entry.toNativeURL());
-                elem_mm.src = file_entry.toNativeURL();
-            }, fileError);
-            if (elem_mm.src === "") {
-                elem_mm.src = script_info.dir_route + "/" + multimedia;
-            }
-            var content = document.getElementById("multimedia_content");
-            if (content)
-                viewer.replaceChild(elem_mm, viewer.firstChild);
-            else
+                console.log("File \"" + multimedia + "\" encountered in local filesystem at " + file_entry.toURL());
+                elem_mm.src = file_entry.toURL();
                 viewer.insertBefore(elem_mm, viewer.childNodes[0]);
-            viewer.parentNode.style.display = "block";
-        };
+                viewer.parentNode.style.display = "block";
+                if (type === "video" || type === "audio") {
+                    elem_mm.controls = "true";
+                    elem_mm.play();
+                }
+            }, fileError);
+        });
     }
     else {
         icon_elem.className = "no_linked_icon";
-        icon_elem.title = icon_elem.title + "- No disponible";
+        icon_elem.title = icon_elem.title + " - No disponible";
     }
     bar.appendChild(icon_elem);
 }
@@ -249,17 +252,27 @@ function compareDates(multimedia) {
             var local_date = metadata.modificationTime;
             var petition = new XMLHttpRequest();
             petition.open("HEAD", script_info.dir_route + "/" + multimedia);
-            petition.addEventListener('load', function(headers) {
-                console.log("Headers of " + multimedia + " obtained");
-                var remote_date = Date.parse(this.getResponseHeader("Last-Modified"));
-                console.log("Local file \"" + multimedia + "\" with date" + local_date.toString());
-                console.log("Remote file " + multimedia + " with date " + remote_date.toString());
-                if (local_date < remote_date) {
-                    console.log("Newer remote version of " + multimedia + ", downloading")
-                    alert("down " + multimeda);
-                    downloadMedia(multimedia);
-                } else {
-                    console.log("Local version of " + multimedia + " already up to date");
+            petition.addEventListener('load', function() {
+                if (this.status == 200) {
+                    console.log("Headers of " + multimedia + " obtained");
+                    var remote_date = Date.parse(this.getResponseHeader("Last-Modified"));
+                    console.log("Local file \"" + multimedia + "\" with date" + local_date.toString());
+                    console.log("Remote file " + multimedia + " with date " + remote_date.toString());
+                    if (local_date < remote_date) {
+                        console.log("Newer remote version of " + multimedia + ", downloading")
+                        alert("down " + multimeda);
+                        downloadMedia(multimedia);
+                    } else {
+                        console.log("Local version of " + multimedia + " already up to date");
+                    }
+                }
+                else {
+                    console.log("Error with file " + multimedia + ", doesn't exist at server");
+                    if (downloadErrOcurred == false) {
+                        downloadErrOcurred = true;
+                        navigator.notification.alert("No ha sido posible encontrar" +
+                                "todo el contenido multimedia en servidor", {}, "Error de contenido multimedia");
+                    }
                 }
             });
             petition.send();
@@ -277,69 +290,70 @@ function compareDates(multimedia) {
  *              route of the multimedia content to be downloaded.
  */
 function downloadMedia(multimedia) {
-    var petition = new XMLHttpRequest();
-    petition.open('GET', script_info.dir_route + "/" + multimedia);
-    petition.responseType = 'arraybuffer';
-    failure_alert = function() {
-        console.log("Error al obtener fichero " + multimedia + " desde servidor");
-        if (downloadErrOcurred == false) {
-            downloadErrOcurred = true;
-            alert("Se ha producido un error de descarga con uno o varios ficheros multimedia");
-        }
-    };
-    petition.addEventListener('load', function(e) {
-        if (this.status === 200) {
-            console.log("GET OK");
-            root_dir.getFile(script_info.name + "/" + multimedia, {create: true}, function(file_entry) {
-                file_entry.createWriter(function(fw) {
-                    var data = e.target.response;
-                    console.log("Starting to write " + multimedia);
-                    writeContent(fw, data);
-                }, fileError);
-            }, fileError);
-        }
-        else {
-            failure_alert;
-        }
-    });
-    petition.addEventListener('error', failure_alert());
-    console.log("GET remote file \"" + script_info.dir_route + "/" + multimedia + "\"");
-    petition.send();
+    var file_name = multimedia.substr(multimedia.lastIndexOf('/') + 1);
+    var mm_type_dir = script_info.name + "/" + multimedia.substr(0, multimedia.lastIndexOf('/') + 1);
+    console.log(mm_type_dir);
+    root_dir.getDirectory(mm_type_dir, {create: false}, function(dir_entry) {
+        var ft = new FileTransfer();
+        var filePath = dir_entry.toURL();
+        console.log("Trying to download file " + multimedia + " to " + filePath);
+        pendingDownloads += 1;
+        showDownloadingContentAlert();
+        ft.download(encodeURI(script_info.dir_route + "/" + multimedia),
+                filePath + "/" + file_name,
+                function() {
+                    console.log("Multimedia file " + multimedia + " succesfully downloaded");
+                    downloadsDone += 1;
+                    refreshDownloadingContentAlert();
+                },
+                function() {
+                    console.log("Error obtaining " + multimedia + " from server");
+                    if (downloadErrOcurred == false) {
+                        downloadErrOcurred = true;
+                        navigator.notification.alert("No se ha podido completar la descarga " +
+                                "de todo el contenido multimedia.", {}, "Error de contenido multimedia");
+                    }
+                    pendingDownloads -= 1;
+                    refreshDownloadingContentAlert();
+                },
+                false,
+                {});
+    }, fileError);
 }
-/**
- * Write the multimedia content got from a remote server in the persistent local
- * storage.
- * 
- * @param fw
- *              FileWriter related to the file that is going to be written.
- * @param data
- *              data to be written into file.
+/*
+ * Shows the alert with the information about the download of the
+ * script's content
  */
-function writeContent(fw, data) {
-    var written = 0;
-    var BLOCK_SIZE = 1024 * 1024;
-    function writeNextBlock() {
-        var block_end = Math.min(BLOCK_SIZE, data.byteLength - written);
-        var data_block = data.slice(written, written + block_end);
-        fw.write(data_block);
-        written += block_end;
+function showDownloadingContentAlert() {
+    var screen = document.getElementById("downloading_content_splashscreen");
+    screen.style.display = "block";
+    refreshDownloadingContentAlert();
+}
+/*
+ * Hides the alert when the download have been finished
+ */
+function hideDownloadingContentAlert() {
+    var screen = document.getElementById("downloading_content_splashscreen");
+    screen.style.display = "none";
+}
+/*
+ * Refresh the information about the status of the download of the script's
+ * multimedia content.
+ */
+function refreshDownloadingContentAlert() {
+    var current_state_text = document.getElementById("current_state_text");
+    var current_state_bar = document.getElementById("percentage_done");
+    var percentage_text = document.getElementById("percentage_text");
+    current_state_text.innerHTML = "Descargas realizadas: " + downloadsDone + "/" + pendingDownloads;
+    var pending_percentage = downloadsDone / pendingDownloads * 100;
+    if (pending_percentage > 0) {
+        current_state_bar.style.display = "block";
+        current_state_bar.style.width = pending_percentage + "%";
     }
-    fw.onwrite = function() {
-        if (written < data.byteLength)
-            writeNextBlock();
-        else
-            console.log("File writing OK ");
-    };
-    fw.onwritestart = function() {
-        if (written === 0)
-            console.log("Starting file writing");
-        else
-            console.log("Writing file from " + written + " to " + written + BLOCK_SIZE);
-    };
-    fw.onerror = function() {
-        console.log("File writing ERROR");
-    };
-    writeNextBlock();
+    percentage_text.innerHTML = Math.floor(pending_percentage) + "%";
+    if (pending_percentage == 100 || isNaN(pending_percentage)) {
+        setTimeout(hideDownloadingContentAlert, 1000);
+    }
 }
 /*
  * Hide the multimedia viewer to recover the script navigator view.
@@ -350,4 +364,32 @@ function hideMultimediaViewer() {
     viewer.removeChild(viewer.firstChild);
     viewer_box.style.display = "none";
 }
-window.addEventListener('load', init);
+
+function resize() {
+    console.log("Resizing...");
+    var calc_section_height = window.innerHeight - (2.5 * 16);
+    if (document.getElementById("answers_section").style.display == 'none') {
+        document.getElementsByTagName("fieldset")[0].style.height = (calc_section_height - (2 * 16)) + "px";
+    } else {
+        calc_section_height /= 2;
+        document.getElementById("answers_section").style.height = calc_section_height + "px";
+        document.getElementsByTagName("fieldset")[0].style.height = calc_section_height + "px";
+    }
+
+    var answers_box = document.getElementsByClassName("answer_text_box");
+    var calc_answer_box_width = window.innerWidth - (7 * 16);
+    for (var i = 0; i < answers_box.length; ++i) {
+        answers_box[i].style.width = calc_answer_box_width + "px";
+    }
+    console.log("Resizing finished");
+}
+
+
+window.addEventListener('load', function() {
+    document.addEventListener('deviceready', function() {
+        window.addEventListener('orientationchange', function() {
+            setTimeout(resize, 500);
+        });
+        init();
+    });
+});

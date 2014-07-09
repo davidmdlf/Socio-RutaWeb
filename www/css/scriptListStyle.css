@@ -6,16 +6,60 @@ Cascade Style Sheet of the scripts list window.
     Author     : David Miguel de la Fuente
 */
 
+#loading_scripts_splashscreen {
+    width: 100%;
+    height: 100%;
+    background-image: url(../images/background_visualizador.png);
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    text-align: center;
+}
+
+#info_box {
+    display: inline-block;
+    padding: 1rem;
+    background-color: #D8D8D8;
+    border-color: #2E2E2E;
+    border-style: solid;
+    border-radius: 0px 20px;
+    position: fixed;
+    left: 10%;
+    right: 10%;
+    top: 50%;
+    margin-top: -2rem;
+    z-index: 101;
+}
+
 nav{
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
     overflow: scroll;
     overflow-x: hidden;
     overflow-y: auto;
-    border-radius: 0px 25px;;
+    border-radius: 0px 25px;
     border-color: #2E2E2E;
     border-style: solid;
+    max-height: 100%;
+    width: 100%;
 }
 
-div{
+#scripts_list_box {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    padding-top: 3.5rem;
+    padding-bottom: 1rem;
+}
+
+nav div{
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    width: 100%;
     text-align: left;
     background-color: #D8D8D8;
     border-bottom: 1px solid #2E2E2E;
@@ -23,22 +67,27 @@ div{
     padding: 5px;
 
 }
-div:first-of-type{
-    border-top-right-radius: inherit;
+nav div:active {
+    background-color: #FFFFFF;
 }
-div:last-of-type{
-    border-bottom-left-radius: inherit;
+nav div:first-of-type{
+    border-top: none;
+    border-top-right-radius: 22px;
 }
-p{
+nav div:last-of-type{
+    border-bottom: none;
+    border-bottom-left-radius: 22px;
+}
+nav div p{
     font-size: 1em
 }
 
-footer {
+nav div footer {
     font-size: 0.8em;
     font-style: oblique;
 }
 
-img{
+nav div img{
     float: left;
     margin-right: 5px;
 }

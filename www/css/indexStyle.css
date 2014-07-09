@@ -6,9 +6,27 @@ of the profile user's data.
     Created on : 28-ene-2014, 15:38:27
     Author     : David Miguel de la Fuente
 */
+#options p:first-child, #options p:nth-child(2) {
+    display:none;
+}
+
+@media only screen and (max-device-width: 767px) and (orientation: landscape){
+    fieldset p {
+        display: inline-block;
+    }
+    
+    fieldset p:nth-of-type(2n){
+        margin-left: 0.2rem;
+        margin-right: 2rem;
+    }
+    fieldset p:nth-of-type(2n+1){
+        margin-left: 2rem;
+        margin-right: 0.2rem;
+    }
+}
 
 legend{
-    font-size: 1.5rem;
+    font-size: 1rem;
     font-weight: bold;
     color: #ffffff;
     background-color: #999999;
@@ -16,6 +34,12 @@ legend{
     border-style: solid;
     border-radius: 5px;
     padding:8px;
+}
+
+p input {
+    height: 1.2rem;
+    padding: 0.1rem;
+    font-size: 1rem;
 }
 
 fieldset {
@@ -28,6 +52,6 @@ fieldset {
     padding: 10px;
 }
 
-p{
-    margin:15px;
+fieldset p{
+    margin: 1rem;
 }

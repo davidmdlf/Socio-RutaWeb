@@ -7,7 +7,6 @@ Cascade Style Sheet of the script navigator.
 */
 
 html, body{
-    height: 100%;
     overflow: hidden;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -15,7 +14,6 @@ html, body{
 
 section, nav, fieldset{
     box-sizing: inherit;
-
     -moz-box-sizing: inherit;
 }
 
@@ -33,7 +31,7 @@ section, nav, fieldset{
     max-height: 90%;
     overflow: scroll;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 #questions_box img, #advices_strategies_box img{
     width: 2.2rem;
@@ -46,10 +44,8 @@ section, nav, fieldset{
     overflow-y: auto;
     border: 3px solid #2E2E2E;
     border-top-width: 0px;
-    border-bottom-right-radius: 0px;
 }
 #answers_section{
-    height: 50%;
     padding-bottom: 2rem;
 }
 
@@ -62,6 +58,9 @@ section, nav, fieldset{
     min-height: 1.5rem;
     text-align: left;
 }
+#answers_box > div:active {
+    background-color: #FFFFFF;
+}
 #answers_box > div:last-child{
     border-bottom: none;
 }
@@ -71,13 +70,13 @@ section, nav, fieldset{
 .answer .multimedia_bar{
     display:inline-block;
     margin-left: 0.5rem;
+    float: right;
+    width: 4.5rem;
 }
 .answer .answer_text_box {
-    display: inline;
+    display: inline-block;
 }
-.answer .multimedia_bar{
-    float:right;
-}
+
 #advices_strategies_box {
     display: none;
 }
@@ -90,20 +89,22 @@ section, nav, fieldset{
 }
 #multimedia_viewer_box {
     position: absolute;
+    z-index: 200;
+
     top: 0rem;
     left: 0rem;
     height: 100%;
     width: 100%;
-    
+
     margin: 0;
     padding: 0.5rem;
-    
+
     display: none;
-    
+
     background-image: url(../images/background_visualizador.png);
 }
 #multimedia_viewer {
-    padding: 10px;
+    padding: 1rem;
 
     border: 0.2rem solid #2E2E2E;
     background-color: #ffffff;
@@ -115,7 +116,6 @@ section, nav, fieldset{
     max-height: 90%;
     max-width: 90%;
 
-    z-index: 0;
     display: inline-block;
 }
 
@@ -126,16 +126,15 @@ section, nav, fieldset{
 }
 
 fieldset{
-    margin-top: 1rem;
-    height: 50%;
-    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+    height: 45%;
     border: 3px solid #2E2E2E;
     border-top-right-radius: 20px;
     background-color: #ffffff;
 }
 
 legend{
-    font-size: 1em;
+    font-size: 1rem;
     font-weight: bold;
     color: #ffffff;
     background-color: #999999;
@@ -143,5 +142,84 @@ legend{
     border-style: solid;
     border-radius: 5px;
     padding:4px;
-    margin-bottom: 10px;
+}
+
+#menu_bar img:last-child {
+    display: none;
+}
+
+#downloading_content_splashscreen {
+    display: none;
+    width: 100%;
+    height: 100%;
+    background-image: url(../images/background_visualizador.png);
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    text-align: center;
+}
+#downloading_content_splashscreen * {
+    text-align: center;
+}
+#alert_box {
+    display: inline-block;
+    padding: 1rem;
+    background-color: #D8D8D8;
+    border-color: #2E2E2E;
+    border-style: solid;
+    border-radius: 0px 20px;
+    position: fixed;
+    left: 10%;
+    right: 10%;
+    top: 50%;
+    margin-top: -2rem;
+    z-index: 101;
+}
+
+#current_state_bar {
+    text-align: left;
+    display: inline-block;
+    width: 70%;
+    position: relative;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+#percentage_max {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    height: 1.5rem;
+    background-color: #2E2E2E;
+    position:absolute;
+    z-index: 102;
+    padding-left: 0.35rem;
+    width: 100%;
+    border-radius : inherit;
+}
+
+#percentage_done {
+    display: none;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    border: #2E2E2E solid 0.15rem;
+    height: 1.5rem;
+    background-color: #FFFFFF;
+    position:absolute;
+    z-index: 103;
+    width: 0%;
+    border-radius : inherit;
+}
+
+#percentage_text {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    top: 0.2rem;
+    left: 0.4rem;
+    font-size: 1rem;
+    height: 1.5rem;
+    position:absolute;
+    z-index: 104;
+    text-align: center;
+    color: #000000;
 }

@@ -5,13 +5,13 @@
  * @version 0.3
  */
 var username, age, sex, studies;
-var URL_dir = "http://192.168.1.100:8080/SocioRutaServer/Guiones/";
 var path_root_dir = "SocioRuta";
 /*
  * Recopile user profile data from form to encapsulate it into a
  * JSON object to store at local storage.
  */
 function getInfo() {
+    navigator.notification.vibrate(100);
     var user_profile = {};
     user_profile.name = username.value;
     user_profile.age = age.value;
@@ -35,8 +35,7 @@ function enableNextButton() {
  * Initialize.
  */
 function init() {
-    console.log("Initializing user profile insertion page")
-    localStorage.URL_dir = URL_dir;
+    console.log("Initializing user profile insertion page");
     localStorage.path_root_dir = path_root_dir;
 
     username = document.getElementById("username");
@@ -61,8 +60,8 @@ function init() {
         }
         console.log("Studies: " + user_profile.studies + " (option " + studies.selectedIndex + ")");
     }
-    username.addEventListener('change', enableNextButton);
-    age.addEventListener('change', enableNextButton);
+    username.addEventListener('keydown', enableNextButton);
+    age.addEventListener('keydown', enableNextButton);
     var next_button = document.getElementById("btn_next");
     next_button.addEventListener('click', getInfo);
 

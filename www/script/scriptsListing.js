@@ -7,14 +7,15 @@
 
 var user_profile;
 var root_dir;
+var local_graphs = [], remote_graphs;
 /*
  * Explore the device storage root for the app files to find '.graphs' files.
  */
 function getLocalGraphList() {
     var root_dir_reader = root_dir.createReader(),
-            graphs_founded = 0, graphs_readed =  0,
-            graphs_profiles = [];
+            graphs_founded = 0, graphs_readed = 0;
     console.log("Starting to explore filesystem for local graphs");
+    root_dir_reader.readEntries(readRootDirectory, fileError);
     /*
      * Explore a script dirctory from device storage.
      * @param entries
@@ -25,7 +26,7 @@ function getLocalGraphList() {
             var entry = entries[i];
             if (entry.isFile) {
                 console.log("Local graph founded: \"" + entry.name + "\"");
-                ++graphs_founded;
+                graphs_founded += 1;
                 entry.file(extractGraphProfile, fileError);
             }
         }
@@ -37,7 +38,7 @@ function getLocalGraphList() {
      *              pointer to each directory in the app root directory.
      */
     function readRootDirectory(entries) {
-        if(entries.length == 0){
+        if (entries.length == 0) {
             console.log("No entries founded: Root dir is empty");
             getRemoteGraphList();
         }
@@ -66,8 +67,9 @@ function getLocalGraphList() {
         fr.onload = function() {
             var file_text = parser.parseFromString(this.result, "application/xml");
             var XMLprofile = file_text.getElementsByTagName('profile');
-            graphs_profiles.push(XMLprofile[0]);
-            ++graphs_readed;
+            local_graphs.push(XMLprofile[0]);
+            graphs_readed += 1;
+            console.log("Readed " + graphs_readed + " of " + local_graphs.length);
             if (graphs_readed == graphs_founded) {
                 finishLocalSearch();
             }
@@ -82,46 +84,92 @@ function getLocalGraphList() {
      * graphs' buttons and the remote search of graphs.
      */
     function finishLocalSearch() {
-        listElements(graphs_profiles);
+        console.log("Graphs founded " + local_graphs.length);
+        local_graphs = Array.prototype.slice.call(local_graphs);
+        local_graphs.sort(orderByScriptName);
+        listElements(local_graphs);
         getRemoteGraphList();
     }
-    root_dir_reader.readEntries(readRootDirectory, fileError);
 }
 /*
  * Get the XML file in remote server, whose URL is given as a global variable,
  * that content the info of the available scripts.
  */
 function getRemoteGraphList() {
+    var loading_info_box = document.getElementById("info_box");
+    loading_info_box.innerHTML = "Solicitando guiones en línea"
     console.log("Trying to get remote graphs list " + localStorage.URL_dir + "list.xml");
     var list;
-    var peticion = new XMLHttpRequest();
-    peticion.timeout = 500;
-    peticion.open("GET", localStorage.URL_dir + "list.xml");
-    peticion.addEventListener('load', function(e) {
-        console.log("Remote graphs list succesfully got");
-        list = e.target.responseXML;
-        list = list.getElementsByTagName('profile');
-        listElements(list);
+    var petition = new XMLHttpRequest();
+    petition.open("GET", localStorage.URL_dir + "list.xml");
+    function hideScriptsLoadingInfoBox() {
+        document.getElementById("loading_scripts_splashscreen").style.display = "none";
+    }
+    petition.timeout = 5000;
+    petition.addEventListener('timeout', function() {
+        petition.abort();
+        hideScriptsLoadingInfoBox()
+    });
+    petition.addEventListener('error', function() {
+        console.log("Error on getting remote graphs list");
+        hideScriptsLoadingInfoBox();
+    });
+    petition.addEventListener('load', function(e) {
+        if (this.status == 200) {
+            console.log("Remote graphs list succesfully got");
+            list = e.target.responseXML;
+            list = list.getElementsByTagName('profile');
+            remote_graphs = Array.prototype.slice.call(list);
+            removeDuplicates();
+        }
+        hideScriptsLoadingInfoBox();
     }, false);
-    peticion.send();
+    petition.send();
+}
+
+function removeDuplicates() {
+    var not_duplicated = new Array();
+    for (var i = 0; i < remote_graphs.length; ++i) {
+        var founded = false;
+        var current_graph = remote_graphs[i];
+        var rem_graph_name = current_graph.getElementsByTagName("name")[0].textContent.trim();
+        for (var j = 0; j < local_graphs.length && !founded; ++j) {
+            var loc_graph_name = local_graphs[j].getElementsByTagName("name")[0].textContent.trim();
+            if (rem_graph_name == loc_graph_name) {
+                console.log("Duplicated encountered: " + rem_graph_name);
+                founded = true;
+            }
+        }
+        if (!founded) {
+            console.log("Not duplicated: " + rem_graph_name);
+            not_duplicated.push(current_graph);
+        }
+    }
+    listElements(not_duplicated);
 }
 /*
  * Gets the persistent local file system to access the device storage.
  */
 function getFS() {
+    console.log("Getting FS");
     window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fs) {
+        console.log("FileSystem succesfully got");
         fs.root.getDirectory(localStorage.path_root_dir, {create: true}, function(dir) {
             root_dir = dir;
-            console.log("FileSystem succesfully got");
-            local_graph_list = getLocalGraphList();
+            console.log("FileSystem root got");
+            getLocalGraphList();
         }, fileError);
-    }, FileError);
+    }, function() {
+        console.log("Error requesting FS");
+        fileError;
+    });
 }
+
 /*
  * Starts initializing the page.
  */
 function init() {
-    console.log("Initializing page");
+    console.log("--------- Initializing ScriptsList Page----------");
     user_profile = JSON.parse(localStorage.user_profile);
     getFS();
 }
@@ -134,12 +182,10 @@ function init() {
  *              XML elements with the profile info of the scripts to list.
  */
 function listElements(XMLelements) {
-    console.log("Starting to create graphs' HTML elements and add them to DOM");
-    var arrayElementosXML = Array.prototype.slice.call(XMLelements);
-    arrayElementosXML.sort(orderByScriptName);
-    for (var i = 0; i < arrayElementosXML.length; ++i) {
-        var actualXMLelement = arrayElementosXML[i];
+    for (var i = 0; i < XMLelements.length; ++i) {
+        var actualXMLelement = XMLelements[i];
         var name = actualXMLelement.getElementsByTagName('name')[0].textContent.trim();
+        console.log("Creating element for graph " + (i + 1) + " of " + XMLelements.length + ": " + name);
         var studies = actualXMLelement.getElementsByTagName('level')[0].textContent.trim();
         var sex = actualXMLelement.getElementsByTagName('sex')[0].textContent.trim();
         var min_age = actualXMLelement.getElementsByTagName('minage')[0].textContent.trim();
@@ -175,7 +221,7 @@ function listElements(XMLelements) {
  */
 function createElement(name, description, date, image) {
     var element = document.createElement("div");
-    element.class = "graph_selection_button";
+    element.className = "graph_selection_button";
     //Profile image
     var image_elem = document.createElement("img");
     image_elem.width = 50;
@@ -195,7 +241,7 @@ function createElement(name, description, date, image) {
 
 //Script info
     var name_elem = document.createElement("h1");
-    name_elem.id = "script_name";
+    name_elem.className = "script_name";
     name_elem.innerHTML = name;
     var description_elem = document.createElement("p");
     description_elem.innerHTML = description;
@@ -207,7 +253,15 @@ function createElement(name, description, date, image) {
     element.appendChild(date_elem);
     document.getElementById("scripts_list").appendChild(element);
     var graph_dir_route = localStorage.URL_dir + name;
-    element.onclick = function() {
+
+    function showLoadingSelectedScriptAlert() {
+        var info_box = document.getElementById("info_box");
+        info_box.innerHTML = "Cargando guion seleccionado";
+        document.getElementById("loading_scripts_splashscreen").style.display = "block";
+    }
+    element.addEventListener('click', function() {
+        showLoadingSelectedScriptAlert();
+        navigator.notification.vibrate(100);
         var script_info = new Object();
         script_info.name = name;
         script_info.dir_route = graph_dir_route;
@@ -216,10 +270,8 @@ function createElement(name, description, date, image) {
         if (image !== "") {
             storeProfileImageInFileSystem(script_info, image);
         }
-        else {
-            storeGraphInFileSystem(script_info);
-        }
-    };
+        storeGraphInFileSystem(script_info);
+    });
 }
 /*
  * Stores the remote graph into device local storage.
@@ -228,10 +280,25 @@ function createElement(name, description, date, image) {
  *              info related to script to be stored.
  */
 function storeGraphInFileSystem(script_info) {
+    console.log("Storing '.graph' file of " + script_info.name);
     var graph_route = script_info.dir_route + "/" + script_info.name + ".graph";
     var graph_fullpath = script_info.name + "/" + script_info.name + ".graph";
     var petition = new XMLHttpRequest();
     petition.open('GET', graph_route, true);
+    petition.timeout = 2000;
+    var onFailurePetition = function() {
+        console.log("Petition of graph " + script_info.name + " failure");
+        root_dir.getFile(graph_fullpath, {create: false}, function() {
+            location.href = "./scriptViewer.html";
+        }, function() {
+            alert("Imposible cargar el guión");
+        });
+    };
+    petition.addEventListener('timeout', function() {
+        console.log("TIMEOUT requesting remote graph " + script_info.name);
+        petition.abort();
+        onFailurePetition();
+    });
     petition.addEventListener('load', function(e) {
         if (this.status == 200) {
             root_dir.getFile(graph_fullpath, {create: true}, function(file_entry) {
@@ -242,15 +309,11 @@ function storeGraphInFileSystem(script_info) {
                     fw.write(e.target.responseText);
                 }, fileError);
             }, fileError);
+        } else {
+            onFailurePetition();
         }
     });
-    petition.addEventListener('error', function() {
-        root_dir.getFile(graph_fullpath, {create: false}, function() {
-            location.href = "./scriptViewer.html";
-        }, function() {
-            alert("Imposible cargar el guión");
-        });
-    });
+    petition.addEventListener('error', onFailurePetition);
     petition.send();
 }
 
@@ -263,26 +326,26 @@ function storeGraphInFileSystem(script_info) {
  */
 function storeProfileImageInFileSystem(script_info, image) {
     var img_petition = new XMLHttpRequest();
-    img_petition.open('GET', script_info.dir_route + "/" + image, false);
+    console.log("Storing profile image of " + script_info.name);
+    img_petition.open('GET', script_info.dir_route + "/" + image);
     img_petition.responseType = 'arraybuffer';
+    img_petition.timeout = 3000;
+    img_petition.addEventListener('timeout', function() {
+        console.log("TIMEOUT requesting image " + script_info.name);
+        img_petition.abort();
+    });
     img_petition.addEventListener('load',
             function(e) {
                 if (this.status == 200) {
                     root_dir.getFile(script_info.name + "/" + image, {create: true}, function(file_entry) {
                         file_entry.createWriter(function(fw) {
-                            fw.onwrite = function() {
-                                storeGraphInFileSystem(script_info);
-                            };
                             fw.write(e.target.response);
                         }, fileError);
                     }
                     , fileError);
-                } else {
-                    storeGraphInFileSystem(script_info);
                 }
             });
     img_petition.addEventListener('error', function() {
-        storeGraphInFileSystem(script_info);
     });
     img_petition.send();
 }
@@ -318,4 +381,8 @@ function orderByScriptName(a, b) {
     }
     return 0;
 }
-window.addEventListener('load', init);
+window.addEventListener('load', function() {
+    document.addEventListener('deviceready', function() {
+        init();
+    });
+});

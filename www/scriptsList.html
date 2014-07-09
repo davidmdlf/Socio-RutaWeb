@@ -6,18 +6,25 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <title>SBG: Lista de guiones disponibles</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width">
-        <link type="text/css" rel="stylesheet" href="css/mainStyle.css" >
-        <link type="text/css" rel="stylesheet" href="css/scriptListStyle.css" >
+        <title>Lista de guiones</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <link type="text/css" rel="stylesheet" href="css/mainStyle.css" />
+        <link type="text/css" rel="stylesheet" href="css/scriptListStyle.css" />
         <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+        <script type="text/javascript" charset="utf-8" src="script/handjs/hand-1.3.8.js"></script>
         <script type="text/javascript" charset="utf-8" src="script/errorHandlers.js"></script>
         <script type="text/javascript" src="script/util.js"></script>
+        <script type="text/javascript" charset="utf-8" src="script/preferencesMenu.js"></script>
         <script type="text/javascript" src="script/scriptsListing.js"></script>
     </head>
     <body>
-        <nav id="scripts_list">
-        </nav>
+        <section id="loading_scripts_splashscreen">
+            <div id="info_box">Leyendo almacenamiento en busca de guiones locales</div>
+        </section>
+        <section id="scripts_list_box">
+            <nav id="scripts_list">
+            </nav>
+        </section>
     </body>
 </html>
